@@ -6,7 +6,7 @@ ACCESS_TOKEN = os.environ.get("GH_TOKEN")
 
 # specify the repository and the directory to download
 REPO_NAME = "pedroelir/demos"
-DIRECTORY_PATH = "python_demo/Comm/utils/Server"
+DIRECTORY_PATH = "python_demo/Comm/utils"
 
 # create a PyGithub instance with the access token
 g = Github(ACCESS_TOKEN)
@@ -22,7 +22,7 @@ for item in tree:
         # download the file or directory
         if item.type == "blob":
             content = repo.get_contents(item.path, ref=branch).decoded_content
-            with open(item.path, "wb") as f:
+            with open(item.path.replace(DIRECTORY_PATH + "/", ""), "wb") as f:
                 f.write(content)
-        elif item.type == "tree":
-            os.makedirs(item.path, exist_ok=True)
+        elif item.type == "tree" and item.path != DIRECTORY_PATH:
+            os.makedirs(item.path.replace(DIRECTORY_PATH + "/", ""), exist_ok=True)
