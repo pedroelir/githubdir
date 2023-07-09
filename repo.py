@@ -10,7 +10,7 @@ gith = Github(ACCESS_TOKEN)
 
 class Repo:
     def __init__(self, url: str):
-        self.url: str = url
+        self.url: str = url if not url.endswith("/") else url[0:-1]
         self.repo = None
         self.repo_name: str = ""
         self.branch_path: str = ""
@@ -19,6 +19,7 @@ class Repo:
         self.branch: str = ""
         self.path: str = ""
         self.is_main_branch = False
+        self.url_is_file = False
         self.__get_github_info()
 
     def get_github_info(self):
@@ -41,6 +42,7 @@ class Repo:
                 # return self.repo, self.branch, self.path
             elif match.group(3) == "blob":
                 self.__split_branch_path()
+                self.url_is_file = True
                 # return self.repo, self.branch, self.path
             else:
                 self.is_main_branch = True
@@ -74,20 +76,24 @@ class Repo:
                 # break
             branch_candidate += "/"
 
+    def download_contents(self):
+        # get the GitTree object for the specified directory
+        tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+        for item in tree:
+            if item.path.startswith(self.path):
+                # download the file or directory
+                if item.type == "blob":
+                    content = self.repo.get_contents(item.path, ref=self.branch).decoded_content
 
-def extract_github_info(link):
-    # regex = r"https://github.com/([^/]+)/([^/]+)/?(tree|blob)?/?([^/]*)"
-    regex = "https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?(tree|blob)?\/?(.+)?"  # noqa:W605
-    match = re.match(regex, link)
-    if match:
-        repo_name = match.group(1) + "/" + match.group(2)
-        branch_path = match.group(4)
-        if match.group(3) == "tree":
-            branch_name, _, dir_path = branch_path.partition("/")
-            return repo_name, branch_name, dir_path + "/"
-        elif match.group(3) == "blob":
-            return repo_name, branch_path, ""
-    return None
+                    if not self.url_is_file:
+                        file_path = item.path.replace(self.path, "")
+                    else:
+                        file_path = self.path.split("/")[-1]
+
+                    with open(file_path, "wb") as file:
+                        file.write(content)
+                elif item.type == "tree" and item.path != self.path:
+                    os.makedirs(item.path.replace(self.path, ""), exist_ok=True)
 
 
 if __name__ == "__main__":
