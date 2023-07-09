@@ -11,6 +11,7 @@ gith = Github(ACCESS_TOKEN)
 class Repo:
     def __init__(self, url: str):
         self.url: str = url
+        self.repo = None
         self.repo_name: str = ""
         self.branch_path: str = ""
         self.default_branch: str = ""
@@ -49,9 +50,9 @@ class Repo:
         return None
 
     def __get_repo_info(self):
-        repo = gith.get_repo(self.repo_name)
-        self.default_branch = repo.default_branch
-        branches = list(repo.get_branches())
+        self.repo = gith.get_repo(self.repo_name)
+        self.default_branch = self.repo.default_branch
+        branches = list(self.repo.get_branches())
         self.branch_names: list[str] = [branch.name for branch in branches]
 
     def __split_branch_path(self):
