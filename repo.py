@@ -80,6 +80,8 @@ class Repo:
         # get the GitTree object for the specified directory
         tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
         for item in tree:
+            if self.url_is_file and not item.path == self.path:
+                continue
             if item.path.startswith(self.path):
                 # download the file or directory
                 if item.type == "blob":
