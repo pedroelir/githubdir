@@ -48,6 +48,8 @@ class Repo:
                 self.is_main_branch = True
                 self.branch = self.default_branch
                 # return self.repo, self.branch, self.path
+            else:
+                print("branch and/or path specified, but missing tree or blob specifier in the URL, Not a valid url")
             return self.repo_name, self.branch, self.path
         return None
 
