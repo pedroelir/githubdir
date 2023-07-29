@@ -44,7 +44,7 @@ class Repo:
                 self.__split_branch_path()
                 self.url_is_file = True
                 # return self.repo, self.branch, self.path
-            else:
+            elif not self.branch_path:
                 self.is_main_branch = True
                 self.branch = self.default_branch
                 # return self.repo, self.branch, self.path

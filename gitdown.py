@@ -10,10 +10,10 @@ from repo import Repo
 # rep = Repo("https://github.com/pedroelir/dir/tree/system")
 # rep = Repo("https://github.com/pedroelir/dir/tree/system/system")
 # rep = Repo("https://github.com/pedroelir/dir/tree/system/system/")
-rep = Repo("https://github.com/pedroelir/dir/blob/system/system/")  # not existing (blob instead of tree)
+# rep = Repo("https://github.com/pedroelir/dir/blob/system/system/")  # wrong existing (blob instead of tree)
 # rep = Repo("https://github.com/pedroelir/dir/fejk/system/system/")  # suppsed not existence (fejk instad of tree)
 # rep = Repo("https://github.com/pedroelir/dir/tree/fake/url/not/exist")  # not existing
-# rep = Repo("https://github.com/pedroelir/dir")
+rep = Repo("https://github.com/pedroelir/dir")
 # rep = Repo("https://github.com/pedroelir/dir/")
 # rep = Repo("https://github.com/pedroelir/dir/blob/other/user/system/user/src/file.txt")
 # rep = Repo("https://github.com/pedroelir/dir/blob/main/.gitignore")
