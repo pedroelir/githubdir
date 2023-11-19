@@ -78,8 +78,15 @@ class Repo:
                 # break
             branch_candidate += "/"
 
-    def download_contents(self):
+    @staticmethod
+    def prepare_destination_dir(dst: str):
+        abs_path = os.path.abspath(dst)
+        os.makedirs(abs_path, exist_ok=True)
+        return abs_path
+
+    def download_contents(self, dst: str = "."):
         # get the GitTree object for the specified directory
+        dst_dir = self.prepare_destination_dir(dst=dst)
         tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
         for item in tree:
             if self.url_is_file and not item.path == self.path:
@@ -90,14 +97,15 @@ class Repo:
                     content = self.repo.get_contents(item.path, ref=self.branch).decoded_content
 
                     if not self.url_is_file:
-                        file_path = item.path.replace(self.path, "")
+                        file_path: str = os.path.join(dst_dir, item.path.replace(self.path, ""))
                     else:
-                        file_path = self.path.split("/")[-1]
+                        file_path: str = os.path.join(dst_dir, self.path.split("/")[-1])
 
                     with open(file_path, "wb") as file:
                         file.write(content)
                 elif item.type == "tree" and item.path != self.path:
-                    os.makedirs(item.path.replace(self.path, ""), exist_ok=True)
+                    new_dir: str = os.path.join(dst_dir, item.path.replace(self.path, ""))
+                    os.makedirs(new_dir, exist_ok=True)
 
 
 if __name__ == "__main__":
