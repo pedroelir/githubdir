@@ -1,6 +1,7 @@
 # import os
 
 # from github import Github
+import json
 from repo import Repo
 
 # replace with your GitHub access token
@@ -8,8 +9,8 @@ from repo import Repo
 
 # specify the repository and the directory to download
 # rep = Repo("https://github.com/pedroelir/dir/tree/system")
-rep = Repo("https://github.com/pedroelir/dir/tree/system/system")
-# rep = Repo("https://github.com/pedroelir/dir/system/system")
+# rep = Repo("https://github.com/pedroelir/dir/tree/system/system")
+# rep = Repo("https://github.com/pedroelir/dir/system/system")  # Mising tree or blob keyword (not exissting)
 # rep = Repo("https://github.com/pedroelir/dir/tree/system/system/")
 # rep = Repo("https://github.com/pedroelir/dir/blob/system/system/")  # wrong existing (blob instead of tree)
 # rep = Repo("https://github.com/pedroelir/dir/fejk/system/system/")  # suppsed not existence (fejk instad of tree)
@@ -18,29 +19,13 @@ rep = Repo("https://github.com/pedroelir/dir/tree/system/system")
 # rep = Repo("https://github.com/pedroelir/dir/")
 # rep = Repo("https://github.com/pedroelir/dir/blob/other/user/system/user/src/file.txt")
 # rep = Repo("https://github.com/pedroelir/dir/blob/main/.gitignore")
-rep.download_contents("example2\example")
+# rep.download_contents("example2\example")
 
-# REPO_NAME = rep.repo_name
-# # REPO_NAME = "pedroelir/dir"
-# DIRECTORY_PATH = rep.path
-# # DIRECTORY_PATH = ""
+if __name__ == "__main__":
+    with open("repos.json",encoding="UTF-8") as fp:
+        repos: list[str] = json.load(fp=fp)
 
-# # create a PyGithub instance with the access token
-# gith = Github(ACCESS_TOKEN)
-
-# # get the repository object
-# repo = gith.get_repo(REPO_NAME)
-# branch = rep.branch
-# # branch = "system"
-
-# # get the GitTree object for the specified directory
-# tree = repo.get_git_tree(sha=branch, recursive=True).tree
-# for item in tree:
-#     if item.path.startswith(DIRECTORY_PATH):
-#         # download the file or directory
-#         if item.type == "blob":
-#             content = repo.get_contents(item.path, ref=branch).decoded_content
-#             with open(item.path.replace(DIRECTORY_PATH, ""), "wb") as f:
-#                 f.write(content)
-#         elif item.type == "tree" and item.path != DIRECTORY_PATH:
-#             os.makedirs(item.path.replace(DIRECTORY_PATH, ""), exist_ok=True)
+    for repo in repos:
+        folder_name = repo.split("/")[-1]
+        rep = Repo(repo)
+        rep.download_contents(folder_name)
