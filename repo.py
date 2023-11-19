@@ -66,9 +66,9 @@ class Repo:
         branch_candidate: str = ""
         for path_element in branch_path_elements:
             branch_candidate += path_element
-            filtered_branches = list(
-                filter(lambda branch_name: branch_name.startswith(branch_candidate), self.branch_names)
-            )
+            filtered_branches: list[str] = [
+                branch_name for branch_name in self.branch_names if branch_name.startswith(branch_candidate)
+            ]
             if len(filtered_branches) == 1:
                 _, self.branch, self.path = self.branch_path.partition(filtered_branches[0])
                 self.path = self.path.removeprefix("/")
