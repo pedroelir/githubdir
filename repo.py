@@ -30,7 +30,7 @@ class Repo:
 
     def __get_github_info(self):
         # regex = r"https://github.com/([^/]+)/([^/]+)/?(tree|blob)?/?([^/]*)"
-        regex = "https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?(tree|blob)?\/?(.+)?"  # noqa:W605
+        regex = "https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?(tree|blob)?\/?(.+)?"  # noqa:W605 pylint: disable=W1401
         match = re.match(regex, self.url)
         if match:
             self.repo_name = match.group(1) + "/" + match.group(2)
@@ -101,7 +101,7 @@ class Repo:
 
 
 if __name__ == "__main__":
-    # print(Repo("https://github.com/PyGithub/PyGithub/tree/dependabot/pip/jinja2-lt-3.2").get_github_info())
+    print(Repo("https://github.com/PyGithub/PyGithub/tree/dependabot/pip/jinja2-lt-3.2").get_github_info())
     print(Repo("https://github.com/PyGithub/PyGithub/tree/dependabot/pip/jinja2-lt-3.2/doc/examples").get_github_info())
     print(Repo("https://github.com/pedroelir/dir/tree/other/system/system/user/src").get_github_info())
     print(Repo("https://github.com/pedroelir/githubdir/blob/main/gitdown.py").get_github_info())
@@ -111,4 +111,3 @@ if __name__ == "__main__":
     print(Repo("https://github.com/pedroelir/dir/tree/system").get_github_info())
     print(Repo("https://github.com/pedroelir/dir/tree/main").get_github_info())
     print(Repo("https://github.com/pedroelir/dir").get_github_info())
-    # print(get_github_info("https://github.com/PyGithub/PyGithub/tree/dependabot/pip/jinja2-lt-3.2/doc/examples"))
