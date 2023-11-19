@@ -8,8 +8,8 @@ from repo import Repo
 
 # specify the repository and the directory to download
 # rep = Repo("https://github.com/pedroelir/dir/tree/system")
-# rep = Repo("https://github.com/pedroelir/dir/tree/system/system")
-rep = Repo("https://github.com/pedroelir/dir/system/system")
+rep = Repo("https://github.com/pedroelir/dir/tree/system/system")
+# rep = Repo("https://github.com/pedroelir/dir/system/system")
 # rep = Repo("https://github.com/pedroelir/dir/tree/system/system/")
 # rep = Repo("https://github.com/pedroelir/dir/blob/system/system/")  # wrong existing (blob instead of tree)
 # rep = Repo("https://github.com/pedroelir/dir/fejk/system/system/")  # suppsed not existence (fejk instad of tree)
@@ -18,7 +18,7 @@ rep = Repo("https://github.com/pedroelir/dir/system/system")
 # rep = Repo("https://github.com/pedroelir/dir/")
 # rep = Repo("https://github.com/pedroelir/dir/blob/other/user/system/user/src/file.txt")
 # rep = Repo("https://github.com/pedroelir/dir/blob/main/.gitignore")
-rep.download_contents()
+rep.download_contents("example2\example")
 
 # REPO_NAME = rep.repo_name
 # # REPO_NAME = "pedroelir/dir"
