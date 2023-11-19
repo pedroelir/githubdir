@@ -2,6 +2,7 @@
 
 # from github import Github
 import json
+import yaml
 import os
 from repo import Repo
 
@@ -23,20 +24,20 @@ from repo import Repo
 # rep.download_contents("example2\example")
 
 
-def check_json_file(json_file_name, expected_attr1="attr1", expected_attr2="attr2"):
-    if not os.path.isfile(json_file_name):
+def check_yaml_file(yaml_file_name, expected_attr1="attr1", expected_attr2="attr2"):
+    if not os.path.isfile(yaml_file_name):
         return False
 
-    with open(json_file_name, encoding="UTF-8") as fp:
+    with open(yaml_file_name, encoding="UTF-8") as fp:
         first_key_level = "FirstKey"
         second_key_level = "SecondKey"
         key_attribute_1 = "attr1"
         keyattribute_2 = "attr2"
 
         try:
-            loaded_json: dict[str, dict[str, dict[str, str]]] = json.load(fp=fp)
-            attr1 = loaded_json.get(first_key_level).get(second_key_level).get(key_attribute_1)
-            attr2 = loaded_json.get(first_key_level).get(second_key_level).get(keyattribute_2)
+            loaded_yaml: dict[str, dict[str, dict[str, str]]] = yaml.safe_load(fp)
+            attr1 = loaded_yaml.get(first_key_level).get(second_key_level).get(key_attribute_1)
+            attr2 = loaded_yaml.get(first_key_level).get(second_key_level).get(keyattribute_2)
         except AttributeError:
             return False
         if any([attr1 is None, attr2 is None]):
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     for repo in repos:
         folder_name = repo.split("/")[-1]
         rep = Repo(repo)
-        rep.download_contents(folder_name)
-        json_file_name = os.path.join(folder_name, "Myjsonfile.json")
-        if not check_json_file(json_file_name=json_file_name):
+        # rep.download_contents(folder_name)
+        yaml_file_name = os.path.join(folder_name, "Myyamlfile.yaml")
+        if not check_yaml_file(yaml_file_name=yaml_file_name):
             print(folder_name)
