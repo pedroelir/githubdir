@@ -26,6 +26,6 @@ if __name__ == "__main__":
         repos: list[str] = json.load(fp=fp)
 
     for repo in repos:
-        folder_name = repo.split("/")[-1]
+        # folder_name = repo.split("/")[-1]
         rep = Repo(repo)
-        rep.download_contents(folder_name)
+        rep.download_contents("test_folder")
