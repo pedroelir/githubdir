@@ -4,8 +4,12 @@ import re
 from github import Github
 
 ACCESS_TOKEN = os.environ.get("GH_TOKEN")
-
-gith = Github(ACCESS_TOKEN)
+GHE_URI = os.environ.get("GHE_URI")
+GHE_TOKEN = os.environ.get("GHE_TOKEN")
+if GHE_URI and GHE_TOKEN:
+    gh = Github(login_or_token=GHE_TOKEN, base_url=f"https://{GHE_URI}/api/v3")
+else:
+    gh = Github(ACCESS_TOKEN)
 
 
 class Repo:
@@ -54,7 +58,7 @@ class Repo:
         return None
 
     def __get_repo_info(self):
-        self.repo = gith.get_repo(self.repo_name)
+        self.repo = gh.get_repo(self.repo_name)
         self.default_branch = self.repo.default_branch
         branches = list(self.repo.get_branches())
         self.branch_names: list[str] = [branch.name for branch in branches]
