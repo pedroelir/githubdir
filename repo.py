@@ -153,8 +153,15 @@ class Repo:
             return False
         self.tree: list[GitTreeElement] = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
         for item in self.tree:
-            if self.url_is_file and not item.path == self.path:
-                continue
+            if self.url_is_file and item.path == self.path:
+                print("Path is File in URL")
+                if item.type == "tree":
+                    print("But actual valid path is not, the path is in fact a tree!")
+                    print('Dont worry I gout you. Changing the actual url from file "blob" to "tree" ')
+                    self.url_is_file = False
+                    self.path = self.path + "/"
+                    self.url = self.url.replace("blob", "tree")
+                return True
             if item.path.startswith(self.path):
                 return True
         return False
