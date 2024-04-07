@@ -2,7 +2,9 @@ import os
 import re
 
 from github import Github
+from github.GitTreeElement import GitTreeElement
 from github.Repository import Repository
+from github.GithubException import UnknownObjectException
 
 ACCESS_TOKEN = os.environ.get("GH_TOKEN")
 GHE_URI = os.environ.get("GHE_URI")
@@ -14,9 +16,7 @@ else:
 
 
 class Repo:
-    def __init__(self, url: str):
-        self._url: str = ""
-        self.url: str = url if not url.endswith("/") else url[0:-1]
+    def __init__(self, url: str = ""):
         self.repo = None
         self.repo_name: str = ""
         self.branch_path: str = ""
@@ -26,7 +26,10 @@ class Repo:
         self.path: str = ""
         self.is_main_branch = False
         self.url_is_file = False
-        self.__get_github_info()
+        self.tree: list[GitTreeElement] = []
+
+        self._url: str = ""
+        self.url: str = url
 
     @property
     def url(self) -> str:
@@ -41,13 +44,33 @@ class Repo:
     def url(self, value: str):
         self._url = value if not value.endswith("/") else value[0:-1]
 
-    def get_github_info(self):
-        if not self.repo_name:
-            return self.__get_github_info()
-        else:
-            return self.repo_name, self.branch, self.path
+    def get_github_info(self, url=""):
+        try:
+            if url:
+                if url != self.url:
+                    print(f"Updating url to {url} and getting github_info")
+                    self.url = url
+                    return self.__get_github_info()
+            if not self.repo_name:
+                return self.__get_github_info()
+            else:
+                return self.repo_name, self.branch, self.path
+        except UnknownObjectException:
+            print(f"Error occured, check that repository URL is correct:{self.url}")
+            return "", "", ""
 
     def __get_github_info(self):
+        print("Reseting object variables")
+        self.repo = None
+        self.repo_name: str = ""
+        self.branch_path: str = ""
+        self.default_branch: str = ""
+        self.branch_names: list[str] = []
+        self.branch: str = ""
+        self.path: str = ""
+        self.is_main_branch = False
+        self.url_is_file = False
+        self.tree: list[GitTreeElement] = []
         # regex = r"https://github.com/([^/]+)/([^/]+)/?(tree|blob)?/?([^/]*)"
         regex = "https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?(tree|blob)?\/?(.+)?"  # noqa:W605 pylint: disable=W1401
         match = re.match(regex, self.url)
@@ -97,17 +120,67 @@ class Repo:
                 # break
             branch_candidate += "/"
 
+    def repo_is_valid(self, url: str = "") -> bool:
+        try:
+            if url:
+                if url != self.url:
+                    print(f"Updating url to {url} and getting github_info")
+                    self.url = url
+                    return self.__get_github_info()
+            print("url to check is the same as current, checking github_info")
+            if not self.repo:
+                self.__get_github_info()
+            if self.repo:
+                return True
+            else:
+                return False
+        except UnknownObjectException:
+            print(f"Error occured, check that repository URL is correct:{self.url}")
+            return False
+
+    def branch_is_valid(self, url: str = "") -> bool:
+        if not self.repo_is_valid(url=url):
+            print(f"{self.url} Has no valid repository in it, hence no branch can be retrieved")
+            return False
+        if not self.branch:
+            print(f"No valid branch found in {self.repo_name}, Branches found: {self.branch_names}")
+            return False
+        return True
+
+    def path_is_valid(self, url: str = "") -> bool:
+        if not self.branch_is_valid(url=url):
+            print(f"There is no Valid branch, hence the path in {self.url} is not valid")
+            return False
+        self.tree: list[GitTreeElement] = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+        for item in self.tree:
+            if self.url_is_file and item.path == self.path:
+                print("Path is File in URL")
+                if item.type == "tree":
+                    print("But actual valid path is not, the path is in fact a tree!")
+                    print('Dont worry I gout you. Changing the actual url from file "blob" to "tree" ')
+                    self.url_is_file = False
+                    self.path = self.path + "/"
+                    self.url = self.url.replace("blob", "tree")
+                return True
+            if item.path.startswith(self.path):
+                return True
+        return False
+
     @staticmethod
     def prepare_destination_dir(dst: str):
         abs_path = os.path.abspath(dst)
         os.makedirs(abs_path, exist_ok=True)
         return abs_path
 
-    def download_contents(self, dst: str = "."):
+    def download_contents(self, dst: str = ".", url: str = ""):
+        # self.get_github_info()
         # get the GitTree object for the specified directory
+        if not self.path_is_valid(url=url):
+            return False
+        # tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+
         dst_dir = self.prepare_destination_dir(dst=dst)
-        tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
-        for item in tree:
+        for item in self.tree:
             if self.url_is_file and not item.path == self.path:
                 continue
             if item.path.startswith(self.path):
