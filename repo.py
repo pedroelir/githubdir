@@ -50,6 +50,17 @@ class Repo:
             return self.repo_name, self.branch, self.path
 
     def __get_github_info(self):
+        print("Reseting object variables")
+        self.repo = None
+        self.repo_name: str = ""
+        self.branch_path: str = ""
+        self.default_branch: str = ""
+        self.branch_names: list[str] = []
+        self.branch: str = ""
+        self.path: str = ""
+        self.is_main_branch = False
+        self.url_is_file = False
+        self.tree = None
         # regex = r"https://github.com/([^/]+)/([^/]+)/?(tree|blob)?/?([^/]*)"
         regex = "https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?(tree|blob)?\/?(.+)?"  # noqa:W605 pylint: disable=W1401
         match = re.match(regex, self.url)
