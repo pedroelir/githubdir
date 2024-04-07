@@ -2,6 +2,7 @@ import os
 import re
 
 from github import Github
+from github.Repository import Repository
 
 ACCESS_TOKEN = os.environ.get("GH_TOKEN")
 GHE_URI = os.environ.get("GHE_URI")
@@ -14,6 +15,7 @@ else:
 
 class Repo:
     def __init__(self, url: str):
+        self._url: str = ""
         self.url: str = url if not url.endswith("/") else url[0:-1]
         self.repo = None
         self.repo_name: str = ""
@@ -25,6 +27,19 @@ class Repo:
         self.is_main_branch = False
         self.url_is_file = False
         self.__get_github_info()
+
+    @property
+    def url(self) -> str:
+        """Current URL
+
+        :return: URL that they class will performa actions to
+        :rtype: str
+        """
+        return self._url
+
+    @url.setter
+    def url(self, value: str):
+        self._url = value if not value.endswith("/") else value[0:-1]
 
     def get_github_info(self):
         if not self.repo_name:
@@ -58,7 +73,7 @@ class Repo:
         return None
 
     def __get_repo_info(self):
-        self.repo = gh.get_repo(self.repo_name)
+        self.repo: Repository = gh.get_repo(self.repo_name)
         self.default_branch = self.repo.default_branch
         branches = list(self.repo.get_branches())
         self.branch_names: list[str] = [branch.name for branch in branches]
