@@ -26,7 +26,6 @@ class Repo:
         self.path: str = ""
         self.is_main_branch = False
         self.url_is_file = False
-        self.__get_github_info()
 
     @property
     def url(self) -> str:
@@ -97,6 +96,26 @@ class Repo:
                 # break
             branch_candidate += "/"
 
+    def repo_is_valid(self) -> bool:
+        try:
+            self.__get_github_info()
+            if self.repo:
+                return True
+            else:
+                return False
+        except TabError:
+            print(f"Error occured, check that repository URL is correct:{self.url}")
+            return False
+
+    def branch_is_valid(self) -> bool:
+        if not self.repo_is_valid():
+            print(f"{self.url} Has no valid repository in it, hence no brnach can be retrieved")
+            return False
+        if not self.branch:
+            print(f"No valid branch found in {self.repo_name}, Branches found: {self.branch_names}")
+            return False
+        return True
+
     @staticmethod
     def prepare_destination_dir(dst: str):
         abs_path = os.path.abspath(dst)
@@ -104,9 +123,12 @@ class Repo:
         return abs_path
 
     def download_contents(self, dst: str = "."):
+        # self.get_github_info()
         # get the GitTree object for the specified directory
-        dst_dir = self.prepare_destination_dir(dst=dst)
+        if not self.branch_is_valid():
+            return False
         tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+        dst_dir = self.prepare_destination_dir(dst=dst)
         for item in tree:
             if self.url_is_file and not item.path == self.path:
                 continue
