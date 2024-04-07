@@ -3,6 +3,7 @@ import re
 
 from github import Github
 from github.Repository import Repository
+from github.GithubException import UnknownObjectException
 
 ACCESS_TOKEN = os.environ.get("GH_TOKEN")
 GHE_URI = os.environ.get("GHE_URI")
@@ -103,13 +104,13 @@ class Repo:
                 return True
             else:
                 return False
-        except TabError:
+        except UnknownObjectException:
             print(f"Error occured, check that repository URL is correct:{self.url}")
             return False
 
     def branch_is_valid(self) -> bool:
         if not self.repo_is_valid():
-            print(f"{self.url} Has no valid repository in it, hence no brnach can be retrieved")
+            print(f"{self.url} Has no valid repository in it, hence no branch can be retrieved")
             return False
         if not self.branch:
             print(f"No valid branch found in {self.repo_name}, Branches found: {self.branch_names}")
