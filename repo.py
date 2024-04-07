@@ -2,6 +2,7 @@ import os
 import re
 
 from github import Github
+from github.GitTreeElement import GitTreeElement
 from github.Repository import Repository
 from github.GithubException import UnknownObjectException
 
@@ -26,6 +27,7 @@ class Repo:
         self.path: str = ""
         self.is_main_branch = False
         self.url_is_file = False
+        self.tree = None
         self.url: str = url
 
     @property
@@ -117,6 +119,18 @@ class Repo:
             return False
         return True
 
+    def path_is_valid(self) -> bool:
+        if not self.branch_is_valid():
+            print(f"There is no Valid branch, hence the path in {self.url} is not valid")
+            return False
+        self.tree: list[GitTreeElement] = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+        for item in self.tree:
+            if self.url_is_file and not item.path == self.path:
+                continue
+            if item.path.startswith(self.path):
+                return True
+        return False
+
     @staticmethod
     def prepare_destination_dir(dst: str):
         abs_path = os.path.abspath(dst)
@@ -126,11 +140,12 @@ class Repo:
     def download_contents(self, dst: str = "."):
         # self.get_github_info()
         # get the GitTree object for the specified directory
-        if not self.branch_is_valid():
+        if not self.path_is_valid():
             return False
-        tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+        # tree = self.repo.get_git_tree(sha=self.branch, recursive=True).tree
+
         dst_dir = self.prepare_destination_dir(dst=dst)
-        for item in tree:
+        for item in self.tree:
             if self.url_is_file and not item.path == self.path:
                 continue
             if item.path.startswith(self.path):
