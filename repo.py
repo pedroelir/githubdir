@@ -16,7 +16,6 @@ else:
 class Repo:
     def __init__(self, url: str):
         self._url: str = ""
-        self.url: str = url if not url.endswith("/") else url[0:-1]
         self.repo = None
         self.repo_name: str = ""
         self.branch_path: str = ""
@@ -26,6 +25,7 @@ class Repo:
         self.path: str = ""
         self.is_main_branch = False
         self.url_is_file = False
+        self.url: str = url
 
     @property
     def url(self) -> str:
